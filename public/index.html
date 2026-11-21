@@ -786,7 +786,8 @@ html.dark #search-results::-webkit-scrollbar-thumb {
   -webkit-backdrop-filter:var(--blur-sm);
   color:#fff;font-size:14px;font-weight:500;
   padding:11px 20px;border-radius:var(--r-md);
-  white-space:nowrap;
+  width:max-content;max-width:calc(100% - 32px);
+  text-align:center;line-height:1.45;
   opacity:0;pointer-events:none;
   transition:opacity .25s,transform .25s;
   box-shadow:0 4px 20px rgba(0,0,0,.25);
@@ -1068,7 +1069,7 @@ html.dark #search-results::-webkit-scrollbar-thumb {
 </div>
 
 <!-- Toast -->
-<div id="toast"></div>
+<div id="toast" role="status"></div>
 
 <!-- Scripts -->
 <script src="/leaflet/leaflet.js"></script>
@@ -1145,11 +1146,11 @@ var elBubbleCoords=$id('bubble-coords'),
 
 /* ─── Toast ──────────────────────────────────────────────── */
 var toastTimer=null;
-function toast(msg){
+function toast(msg,duration=2200){
   var el=$id('toast');
   el.textContent=msg;el.classList.add('show');
   if(toastTimer)clearTimeout(toastTimer);
-  toastTimer=setTimeout(function(){el.classList.remove('show');},2200);
+  toastTimer=setTimeout(function(){el.classList.remove('show');},duration);
 }
 
 /* ─── Coordinate display ─────────────────────────────────── */
@@ -1608,21 +1609,53 @@ $id('bubble-fav-btn').addEventListener('click', function(e){
   }
 });
 
-// Locate current position
-$id('btn-locate').addEventListener('click', function(e){
-  e.stopPropagation();
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(function(pos) {
-      var lat = pos.coords.latitude;
-      var lng = pos.coords.longitude;
-      var disp = (currentLayer === 'osm'||currentLayer === 'esri') ? [lat, lng] : GCJ.w2g(lat, lng);
-      map.setView([disp[0], disp[1]], 16, {animate: true});
-      toast('已定位到当前真实位置');
-    }, function(err) {
-      toast('定位失败: ' + err.message);
-    }, {enableHighAccuracy: true, timeout: 6000});
-  } else {
-    toast('您的浏览器不支持定位功能');
+// Center the map using the browser's device location.
+function requestDevicePosition(options) {
+  return new Promise(function(resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject, options);
+  });
+}
+
+$id('btn-locate').addEventListener('click', async function(event) {
+  event.stopPropagation();
+  if (!window.isSecureContext || !navigator.geolocation) {
+    toast('当前浏览器无法使用定位，请在 Safari 或 Chrome 中打开面板。', 6000);
+    return;
+  }
+  if (!map || this.disabled) return;
+  this.disabled = true;
+  this.setAttribute('aria-busy', 'true');
+  toast('正在获取设备位置…');
+
+  try {
+    var position;
+    try {
+      position = await requestDevicePosition({
+        enableHighAccuracy: false, timeout: 15000, maximumAge: 30000
+      });
+    } catch (error) {
+      if (error.code !== 2 && error.code !== 3) throw error;
+      toast('定位信号较弱，正在重试…', 4000);
+      position = await requestDevicePosition({
+        enableHighAccuracy: true, timeout: 20000, maximumAge: 0
+      });
+    }
+    var lat = position.coords.latitude;
+    var lng = position.coords.longitude;
+    var point = (currentLayer === 'osm' || currentLayer === 'esri') ? [lat, lng] : GCJ.w2g(lat, lng);
+    map.setView(point, 16, { animate: true });
+    toast('地图已移到设备位置');
+  } catch (error) {
+    if (error.code === 1) {
+      toast('定位权限未开启。请允许此网站访问位置，并检查系统定位服务。', 6500);
+    } else if (error.code === 3) {
+      toast('定位超时。请在系统浏览器中重试，或搜索地点选点。', 6500);
+    } else {
+      toast('暂时无法获取设备位置。请重试，或搜索地点选点。', 6500);
+    }
+  } finally {
+    this.disabled = false;
+    this.removeAttribute('aria-busy');
   }
 });
 
