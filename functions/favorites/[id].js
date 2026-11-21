@@ -11,17 +11,18 @@ import { authOk, jsonResponse, errorResponse, corsHeaders } from '../_utils.js';
 export async function onRequestDelete(context) {
   const { request, env, params } = context;
 
+  if (!env.TOKEN) {
+    return errorResponse('TOKEN is not configured', 503);
+  }
   if (!authOk(request, env)) {
     return errorResponse('unauthorized', 401);
   }
-
-  const id = params.id;
-  
-  if (env.SPOOFER_DATA) {
-    let favs = await env.SPOOFER_DATA.get('favorites', { type: 'json' }) || [];
-    favs = favs.filter(f => f.id !== id);
-    await env.SPOOFER_DATA.put('favorites', JSON.stringify(favs));
+  if (!env.SPOOFER_DATA) {
+    return errorResponse('KV is not configured', 503);
   }
+
+  const favs = await env.SPOOFER_DATA.get('favorites', { type: 'json' }) || [];
+  await env.SPOOFER_DATA.put('favorites', JSON.stringify(favs.filter(f => f.id !== params.id)));
 
   return jsonResponse({ ok: true });
 }

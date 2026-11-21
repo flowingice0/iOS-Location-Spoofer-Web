@@ -26,12 +26,12 @@
     });
   }
 </script>
-<title>GPS Spoofer</title>
+<title>地图选点与收藏</title>
 <link rel="manifest" href="/manifest.json">
 <link rel="apple-touch-icon" href="/icon-512.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<link rel="stylesheet" href="/leaflet/leaflet.css">
 <style>
 /* ═══════════════════════════════════════════════
    RESET & BASE
@@ -88,7 +88,6 @@ html.dark #search-input{color:var(--text);}
 html.dark #status-pill{background:rgba(255,255,255,0.08);}
 html.dark .result-row{color:var(--text);border-bottom-color:rgba(255,255,255,0.06);}
 html.dark .result-row:active{background:rgba(0,122,255,0.15);}
-html.dark .config-code-box{background:rgba(0,0,0,0.35);color:var(--text);border-color:rgba(255,255,255,0.1);}
 /* dark mode toggle button */
 #dark-toggle{
   display:flex;align-items:center;justify-content:space-between;
@@ -236,30 +235,6 @@ html.dark .config-code-box{background:rgba(0,0,0,0.35);color:var(--text);border-
   padding:16px 20px;
   border-bottom:1px solid rgba(60,60,67,.08);
 }
-.config-section:last-child{border-bottom:none;}
-.config-title{
-  font-size:14px;font-weight:600;color:var(--text);margin-bottom:8px;
-}
-.config-desc{
-  font-size:12px;color:var(--text-secondary);line-height:1.5;margin-bottom:12px;
-}
-.config-action-btn{
-  width:100%;height:40px;background:var(--accent);color:#fff;
-  border:none;border-radius:10px;font-size:13px;font-weight:600;
-  cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;
-  transition:background .15s,transform .15s;
-}
-.config-action-btn:active{transform:scale(.97);background:var(--accent-hover);}
-.config-code-box{
-  background:rgba(0,0,0,0.05);
-  border:1px solid rgba(60,60,67,0.12);
-  border-radius:8px;padding:10px;
-  font-family:monospace;font-size:11px;color:var(--text);
-  word-break:break-all;white-space:pre-wrap;
-  max-height:110px;overflow-y:auto;margin-bottom:10px;
-}
-
-
 /* ═══════════════════════════════════════════════
    MAP (full viewport)
 ═══════════════════════════════════════════════ */
@@ -960,7 +935,7 @@ html.dark #search-results::-webkit-scrollbar-thumb {
 </button>
 
 <!-- Left: Config button -->
-<button id="config-btn" aria-label="小火箭配置">
+<button id="config-btn" aria-label="地图设置">
   <svg viewBox="0 0 24 24" width="20" height="20" stroke="currentColor" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.1a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
 </button>
 
@@ -993,41 +968,24 @@ html.dark #search-results::-webkit-scrollbar-thumb {
 </div>
 
 <!-- Login overlay -->
-<div id="login-overlay" style="display: none;">
+<div id="login-overlay" style="display: flex;">
   <div id="login-card">
     <h2>安全登录验证</h2>
-    <p>自建定位服务受密码保护，请输入您的访问密钥 (Token) 以解锁地图面板。</p>
+    <p>输入访问密码以打开地图和收藏。</p>
     <input id="login-input" type="password" placeholder="请输入密码 (Token)" autocomplete="off">
-    <button id="login-submit">进入系统</button>
+    <button id="login-submit">打开地图</button>
   </div>
 </div>
 
 <!-- Config panel -->
 <div id="config-panel">
   <div id="config-panel-header">
-    <h2>Shadowrocket 配置</h2>
-    <button id="config-close">
+    <h2>地图设置</h2>
+    <button id="config-close" aria-label="关闭设置">
       <svg viewBox="0 0 24 24" width="16" height="16" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   </div>
   <div id="config-content">
-    <div class="config-section">
-      <div class="config-title">方法 A：一键导入小火箭模块</div>
-      <div class="config-desc">最推荐的方式。点击下方按钮即可唤醒手机上的 Shadowrocket 自动导入到【模块】列表中。</div>
-      <button class="config-action-btn" id="btn-config-import">一键导入模块</button>
-    </div>
-    <div class="config-section">
-      <div class="config-title">方法 B：手动复制模块链接</div>
-      <div class="config-desc">如果在微信或第三方浏览器无法唤醒，请复制下方完整的模块链接，前往 Shadowrocket 的【配置】页面 -> 点击进入【模块】 -> 点击右上角【+】号 -> 粘贴此 URL 下载即可。</div>
-      <div class="config-code-box" id="config-url-text">...</div>
-      <button class="config-action-btn" id="btn-config-copy-url">复制模块链接</button>
-    </div>
-    <div class="config-section">
-      <div class="config-title">方法 C：一键复制 argument 参数</div>
-      <div class="config-desc">如果您已导入了模块，只需将下方为您拼装好的 argument 覆盖原模块参数即可。</div>
-      <div class="config-code-box" id="config-arg-text">...</div>
-      <button class="config-action-btn" id="btn-config-copy-arg">复制 argument 参数</button>
-    </div>
     <div class="config-section" style="border-bottom:none;">
       <div id="dark-toggle">
         <div id="dark-toggle-label">
@@ -1051,7 +1009,7 @@ html.dark #search-results::-webkit-scrollbar-thumb {
   <div id="fav-list">
     <div id="fav-empty">
       <svg viewBox="0 0 24 24" width="40" height="40" stroke="#8E8E93" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom: 12px;"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
-      暂无收藏<br>锁定位置后点「收藏」即可保存
+      暂无收藏<br>选点后点击地图上的星标
     </div>
   </div>
 </div>
@@ -1087,7 +1045,7 @@ html.dark #search-results::-webkit-scrollbar-thumb {
     </div>
     <button id="btn-lock">
       <svg viewBox="0 0 24 24" width="18" height="18" stroke="currentColor" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round" style="margin-right: 4px;"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-      <span id="btn-lock-label">锁定</span>
+      <span id="btn-lock-label">保存坐标</span>
     </button>
   </div>
 </div>
@@ -1113,19 +1071,21 @@ html.dark #search-results::-webkit-scrollbar-thumb {
 <div id="toast"></div>
 
 <!-- Scripts -->
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="/leaflet/leaflet.js"></script>
 <script>
 (function(){
 'use strict';
 
 /* ─── Runtime config injected by server ─────────────────── */
 var CFG = window.__CFG__ || {};
-var HAS_TOKEN = CFG.hasToken === true;
 var AMAP_KEY = CFG.amapKey || '';
-var API = function(p){ 
-  var t = localStorage.getItem('gps_token') || '';
-  return p + (t ? '?token=' + encodeURIComponent(t) : ''); 
-};
+var accessToken = '';
+function apiFetch(path, options) {
+  options = options || {};
+  var headers = new Headers(options.headers);
+  headers.set('Authorization', 'Bearer ' + accessToken);
+  return fetch(path, Object.assign({}, options, { headers: headers }));
+}
 
 /* ─── GCJ-02 ↔ WGS-84 (China map offset correction) ─────── */
 var GCJ = (function(){
@@ -1204,16 +1164,16 @@ function updateBubble(){
 function updateStatus(){
   if(!lockedWGS){
     elStatusDot.className='status-dot';
-    elStatusText.textContent='拖动地图，然后点「锁定」';
+    elStatusText.textContent='拖动地图，然后点「保存坐标」';
     return;
   }
   var same=Math.abs(WGS.lat-lockedWGS.lat)<0.00001&&Math.abs(WGS.lng-lockedWGS.lng)<0.00001;
   if(same){
     elStatusDot.className='status-dot saved';
-    elStatusText.textContent='已锁定 · '+WGS.lat.toFixed(4)+', '+WGS.lng.toFixed(4);
+    elStatusText.textContent='已保存 · '+WGS.lat.toFixed(4)+', '+WGS.lng.toFixed(4);
   }else{
     elStatusDot.className='status-dot unsaved';
-    elStatusText.textContent='位置已移动，点「锁定」生效';
+    elStatusText.textContent='位置已移动，点「保存坐标」更新';
   }
 }
 
@@ -1331,22 +1291,27 @@ function renderHistory() {
     container.innerHTML = '';
     return;
   }
-  var html = '';
-  searchHistory.forEach(function(q) {
-    html += '<div class="history-item" onclick="onHistoryClick(event, \'' + q.replace(/'/g, "\\'") + '\')">'
-          + '<svg class="history-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'
-          + '<span>' + escHtml(q) + '</span>'
-          + '</div>';
+  container.replaceChildren();
+  searchHistory.forEach(function(query) {
+    var row = document.createElement('div');
+    row.className = 'history-item';
+    row.innerHTML = '<svg class="history-icon" viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>'
+          + '<span>' + escHtml(query) + '</span>';
+    row.addEventListener('click', function(event) { selectHistory(event, query); });
+    container.appendChild(row);
   });
-  html += '<div class="history-clear" onclick="clearHistory(event)">清除历史记录</div>';
-  container.innerHTML = html;
+  var clear = document.createElement('div');
+  clear.className = 'history-clear';
+  clear.textContent = '清除历史记录';
+  clear.addEventListener('click', clearHistory);
+  container.appendChild(clear);
 }
-window.onHistoryClick = function(e, query) {
+function selectHistory(e, query) {
   if (e) e.stopPropagation();
   $id('search-input').value = query;
   doSearch();
 }
-window.clearHistory = function(e) {
+function clearHistory(e) {
   if (e) e.stopPropagation();
   searchHistory = [];
   localStorage.removeItem(HISTORY_KEY);
@@ -1422,8 +1387,8 @@ function doSearch(){
         a.forEach(function(it){
           var row=document.createElement('div');row.className='result-row';
           var parts=it.display_name.split(',');
-          row.innerHTML='<div class="name">'+parts[0]+'</div>'
-                       +'<div class="sub">'+parts.slice(1,3).join(',')+'</div>';
+          row.innerHTML='<div class="name">'+escHtml(parts[0])+'</div>'
+                       +'<div class="sub">'+escHtml(parts.slice(1,3).join(','))+'</div>';
           row.addEventListener('click',function(){
             var wLat=+it.lat,wLng=+it.lon;
             var disp=(currentLayer==='osm'||currentLayer==='esri')?[wLat,wLng]:GCJ.w2g(wLat,wLng);
@@ -1454,6 +1419,8 @@ document.addEventListener('click',function(e){
 
 /* ─── Lock location ──────────────────────────────────────── */
 function lockLocation(){
+  if (elBtnLock.disabled) return;
+  elBtnLock.disabled = true;
   elBtnLock.classList.add('locking');
   elBtnLockLabel.textContent='保存中…';
 
@@ -1467,23 +1434,24 @@ function lockLocation(){
     horizontalAccuracy:haccVal||39,
     verticalAccuracy:vaccVal||1000
   };
-  fetch(API('/set'),{
+  apiFetch('/set',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
   }).then(function(r){
     if(!r.ok)throw new Error(r.status);
-    lockedWGS={lat:WGS.lat,lng:WGS.lng};
+    lockedWGS={lat:payload.latitude,lng:payload.longitude};
     $id('crosshair').classList.add('locked');
     setTimeout(function(){$id('crosshair').classList.remove('locked');},400);
-    toast('位置已锁定！请前往系统 定位服务 重新开关生效');
+    toast('坐标已保存');
     updateStatus();
-    updateLockedPin(WGS.lat,WGS.lng);
+    updateLockedPin(lockedWGS.lat,lockedWGS.lng);
   }).catch(function(){
     toast('保存失败，请检查网络或 Token');
   }).finally(function(){
+    elBtnLock.disabled = false;
     elBtnLock.classList.remove('locking');
-    elBtnLockLabel.textContent='锁定';
+    elBtnLockLabel.textContent='保存坐标';
   });
 }
 elBtnLock.addEventListener('click',lockLocation);
@@ -1540,8 +1508,8 @@ drawer.addEventListener('touchend',function(e){
 
 /* ─── Favorites ──────────────────────────────────────────── */
 function loadFavorites(){
-  fetch(API('/favorites'))
-    .then(function(r){return r.json();})
+  apiFetch('/favorites')
+    .then(function(r){if (!r.ok) throw new Error(r.status); return r.json();})
     .then(function(a){favorites=a||[];renderFavorites();updateFavStar();})
     .catch(function(){});
 }
@@ -1585,7 +1553,7 @@ function renderFavorites(){
     // Jump to location on tap
     item.addEventListener('click',function(e){
       if(e.target.classList.contains('fav-del'))return;
-      var disp=currentLayer==='osm'?[f.latitude,f.longitude]:GCJ.w2g(f.latitude,f.longitude);
+      var disp=(currentLayer==='osm'||currentLayer==='esri')?[f.latitude,f.longitude]:GCJ.w2g(f.latitude,f.longitude);
       map.setView([disp[0],disp[1]],15,{animate:true});
       closeFavPanel();
     });
@@ -1601,8 +1569,8 @@ function renderFavorites(){
 }
 
 function deleteFavorite(id){
-  fetch(API('/favorites/'+id),{method:'DELETE'})
-    .then(function(){loadFavorites();toast('已删除');})
+  apiFetch('/favorites/'+id,{method:'DELETE'})
+    .then(function(r){if (!r.ok) throw new Error(r.status); loadFavorites();toast('已删除');})
     .catch(function(){toast('删除失败');});
 }
 
@@ -1635,7 +1603,6 @@ $id('bubble-fav-btn').addEventListener('click', function(e){
   var existing=favorites.find(function(f){ return coordMatch(f, WGS); });
   if(existing){
     deleteFavorite(existing.id);
-    toast('已取消收藏');
   } else {
     showSaveModal();
   }
@@ -1686,11 +1653,11 @@ function saveFavorite(){
     horizontalAccuracy:parseFloat($id('inp-hacc').value)||39,
     verticalAccuracy:parseFloat($id('inp-vacc').value)||1000
   };
-  fetch(API('/favorites'),{
+  apiFetch('/favorites',{
     method:'POST',
     headers:{'Content-Type':'application/json'},
     body:JSON.stringify(payload)
-  }).then(function(r){return r.json();})
+  }).then(function(r){if (!r.ok) throw new Error(r.status);})
     .then(function(){
       $id('modal-backdrop').classList.remove('open');
       loadFavorites();
@@ -1721,16 +1688,7 @@ function openConfigPanel() {
   $id('config-panel').classList.add('open');
   elOverlay.classList.add('visible');
   
-  // Dynamically build paths
-  var domain = window.location.origin;
-  var tokenVal = localStorage.getItem('gps_token') || '';
-  
-  // Format links
-  var moduleUrl = domain + '/ios-location-spoofer.sgmodule' + (tokenVal ? '?token=' + encodeURIComponent(tokenVal) : '');
-  var argText = 'configUrl=' + domain + '/loc.json' + (tokenVal ? '?token=' + encodeURIComponent(tokenVal) : '');
-  
-  $id('config-url-text').textContent = moduleUrl;
-  $id('config-arg-text').textContent = argText;
+
 }
 
 function closeConfigPanel() {
@@ -1745,25 +1703,6 @@ $id('config-btn').addEventListener('click', function(e) {
 });
 $id('config-close').addEventListener('click', closeConfigPanel);
 
-$id('btn-config-import').addEventListener('click', function() {
-  var url = $id('config-url-text').textContent;
-  var importUrl = 'shadowrocket://install/module?url=' + encodeURIComponent(url);
-  window.location.href = importUrl;
-  toast('已唤起 Shadowrocket 导入模块');
-});
-
-$id('btn-config-copy-url').addEventListener('click', function() {
-  navigator.clipboard.writeText($id('config-url-text').textContent)
-    .then(function() { toast('模块链接已复制'); })
-    .catch(function() { toast('复制失败，请手动选择复制'); });
-});
-
-$id('btn-config-copy-arg').addEventListener('click', function() {
-  navigator.clipboard.writeText($id('config-arg-text').textContent)
-    .then(function() { toast('参数已复制'); })
-    .catch(function() { toast('复制失败，请手动选择复制'); });
-});
-
 // Click overlay closes everything
 elOverlay.addEventListener('click', function(){
   closeFavPanel();
@@ -1771,102 +1710,48 @@ elOverlay.addEventListener('click', function(){
   $id('layer-menu').style.display='none';
 });
 
-/* ─── Security login checks (30 days expiration) ─────────── */
-function verifyToken(token, callback) {
-  fetch(window.location.origin + '/verify?token=' + encodeURIComponent(token))
-    .then(function(r) {
-      if (r.status === 200) callback(true);
-      else callback(false);
-    })
-    .catch(function() { callback(false); });
-}
-
-function showLoginScreen(onSuccess) {
-  var overlay = $id('login-overlay');
-  var input = $id('login-input');
-  var submit = $id('login-submit');
-  
-  overlay.style.display = 'flex';
-  input.value = '';
-  
-  function attemptLogin() {
-    var val = input.value.trim();
-    if (!val) {
-      toast('请输入密码');
-      return;
-    }
-    submit.disabled = true;
-    submit.textContent = '验证中...';
-    verifyToken(val, function(ok) {
-      submit.disabled = false;
-      submit.textContent = '进入系统';
-      if (ok) {
-        // Cache token for 30 days
-        var session = {
-          token: val,
-          expiresAt: Date.now() + 30 * 24 * 60 * 60 * 1000 // 30 days
-        };
-        localStorage.setItem('gps_token', val);
-        localStorage.setItem('gps_session', JSON.stringify(session));
-        
-        overlay.style.display = 'none';
-        onSuccess(val);
-        toast('登录成功，有效期30天');
-      } else {
-        toast('密码错误，请重新输入');
-        input.value = '';
-        input.focus();
-      }
-    });
-  }
-  
-  submit.onclick = attemptLogin;
-  input.onkeydown = function(e) {
-    if (e.key === 'Enter') attemptLogin();
-  };
-}
-
-function handleAuthentication(onAuthenticated) {
-  if (!HAS_TOKEN) {
-    // Open access, no token required on server
-    $id('login-overlay').style.display = 'none';
-    localStorage.removeItem('gps_token');
-    localStorage.removeItem('gps_session');
-    onAuthenticated('');
+/* ─── Login ───────────────────────────────────────────────── */
+var loginInput = $id('login-input');
+var loginSubmit = $id('login-submit');
+async function logIn() {
+  if (loginSubmit.disabled) return;
+  var enteredToken = loginInput.value.trim();
+  if (!enteredToken) {
+    toast('请输入密码');
     return;
   }
-  
-  var session = {};
+  loginSubmit.disabled = true;
+  loginSubmit.textContent = '验证中…';
+  accessToken = enteredToken;
   try {
-    session = JSON.parse(localStorage.getItem('gps_session') || '{}');
-  } catch(e) {}
-  
-  if (session.token && session.expiresAt && session.expiresAt > Date.now()) {
-    verifyToken(session.token, function(ok) {
-      if (ok) {
-        $id('login-overlay').style.display = 'none';
-        onAuthenticated(session.token);
-      } else {
-        showLoginScreen(onAuthenticated);
-      }
-    });
-  } else {
-    showLoginScreen(onAuthenticated);
+    var response = await apiFetch('/verify');
+    if (!response.ok) {
+      accessToken = '';
+      toast(response.status === 401 ? '密码错误，请重新输入' : '服务尚未完成配置');
+      loginInput.focus();
+      return;
+    }
+    $id('login-overlay').style.display = 'none';
+    loadSavedMap();
+  } catch (error) {
+    accessToken = '';
+    toast('无法连接服务器，请重试');
+  } finally {
+    loginInput.value = '';
+    loginSubmit.disabled = false;
+    loginSubmit.textContent = '打开地图';
   }
 }
+loginSubmit.onclick = logIn;
+loginInput.addEventListener('keydown', function(event) {
+  if (event.key === 'Enter') logIn();
+});
 
-/* ─── Init: load current coords from server ─────────────── */
-handleAuthentication(function(activeToken) {
-  // Update API URL helper with cached token dynamically
-  API = function(p) {
-    var t = activeToken || localStorage.getItem('gps_token') || '';
-    return p + (t ? '?token=' + encodeURIComponent(t) : '');
-  };
-
-  fetch(API('/loc.json'))
-    .then(function(r){return r.json();})
+function loadSavedMap() {
+  apiFetch('/loc.json')
+    .then(function(r){if (!r.ok) throw new Error(r.status); return r.json();})
     .then(function(d){
-      WGS={lat:d.latitude||39.90872,lng:d.longitude||116.39748};
+      WGS={lat:d.latitude ?? 39.90872,lng:d.longitude ?? 116.39748};
       lockedWGS={lat:WGS.lat,lng:WGS.lng};
       altitude=d.altitude||null;
       hacc=d.horizontalAccuracy||39;
@@ -1883,8 +1768,7 @@ handleAuthentication(function(activeToken) {
       loadFavorites();
     })
     .catch(function(){
-      // fallback: Beijing
-      initMap(39.90872,116.39748);
+        initMap(39.90872,116.39748);
       updateLockedPin(39.90872,116.39748);
       updateBubble();
       updateStatus();
@@ -1893,7 +1777,7 @@ handleAuthentication(function(activeToken) {
       loadFavorites();
       toast('无法连接服务器，请检查 Token');
     });
-});
+}
 
 if (!AMAP_KEY) {
   $id('search-input').placeholder = '搜索地点 (国内搜索建议配置高德 Key)';

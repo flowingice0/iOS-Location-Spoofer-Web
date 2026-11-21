@@ -11,14 +11,17 @@ import { DEFAULT_LOC, authOk, jsonResponse, errorResponse, corsHeaders } from '.
 export async function onRequestGet(context) {
   const { request, env } = context;
 
+  if (!env.TOKEN) {
+    return errorResponse('TOKEN is not configured', 503);
+  }
   if (!authOk(request, env)) {
     return errorResponse('unauthorized', 401);
   }
-
-  let loc = DEFAULT_LOC;
-  if (env.SPOOFER_DATA) {
-    loc = await env.SPOOFER_DATA.get('loc', { type: 'json' }) || DEFAULT_LOC;
+  if (!env.SPOOFER_DATA) {
+    return errorResponse('KV is not configured', 503);
   }
+
+  const loc = await env.SPOOFER_DATA.get('loc', { type: 'json' }) || DEFAULT_LOC;
 
   return jsonResponse(loc);
 }

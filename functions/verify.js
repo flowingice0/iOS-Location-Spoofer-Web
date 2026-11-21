@@ -11,8 +11,14 @@ import { authOk, jsonResponse, errorResponse, corsHeaders } from './_utils.js';
 export async function onRequestGet(context) {
   const { request, env } = context;
 
+  if (!env.TOKEN) {
+    return errorResponse('TOKEN is not configured', 503);
+  }
   if (!authOk(request, env)) {
     return errorResponse('unauthorized', 401);
+  }
+  if (!env.SPOOFER_DATA) {
+    return errorResponse('KV is not configured', 503);
   }
 
   return jsonResponse({ ok: true });

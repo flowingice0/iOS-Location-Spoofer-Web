@@ -1,7 +1,7 @@
 {
-  "name": "GPS Spoofer",
-  "short_name": "GPS Spoofer",
-  "description": "iOS GPS 模拟定位 Web 管理面板",
+  "name": "地图选点与收藏",
+  "short_name": "地图收藏",
+  "description": "个人地图选点和坐标收藏面板",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#f2efe9",

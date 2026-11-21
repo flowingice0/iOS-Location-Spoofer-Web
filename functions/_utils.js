@@ -15,9 +15,7 @@ export const DEFAULT_LOC = {
 };
 
 export function authOk(request, env) {
-  const url = new URL(request.url);
-  const token = url.searchParams.get('token');
-  return !env.TOKEN || token === env.TOKEN;
+  return Boolean(env.TOKEN) && request.headers.get('Authorization') === `Bearer ${env.TOKEN}`;
 }
 
 export function jsonResponse(data, status = 200) {
@@ -25,7 +23,6 @@ export function jsonResponse(data, status = 200) {
     status,
     headers: {
       'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
       'Cache-Control': 'no-store'
     }
   });

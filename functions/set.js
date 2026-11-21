@@ -11,16 +11,22 @@ import { DEFAULT_LOC, authOk, jsonResponse, errorResponse, corsHeaders } from '.
 export async function onRequestPost(context) {
   const { request, env } = context;
 
+  if (!env.TOKEN) {
+    return errorResponse('TOKEN is not configured', 503);
+  }
   if (!authOk(request, env)) {
     return errorResponse('unauthorized', 401);
+  }
+  if (!env.SPOOFER_DATA) {
+    return errorResponse('KV is not configured', 503);
   }
 
   try {
     const data = await request.json();
-    let current = DEFAULT_LOC;
-
-    if (env.SPOOFER_DATA) {
-      current = await env.SPOOFER_DATA.get('loc', { type: 'json' }) || DEFAULT_LOC;
+    const current = await env.SPOOFER_DATA.get('loc', { type: 'json' }) || DEFAULT_LOC;
+    if (!Number.isFinite(data.latitude) || Math.abs(data.latitude) > 90 ||
+        !Number.isFinite(data.longitude) || Math.abs(data.longitude) > 180) {
+      return errorResponse('invalid coordinates');
     }
 
     const updated = { ...current };
@@ -30,9 +36,7 @@ export async function onRequestPost(context) {
     if (typeof data.horizontalAccuracy === 'number') updated.horizontalAccuracy = data.horizontalAccuracy;
     if (typeof data.verticalAccuracy   === 'number') updated.verticalAccuracy   = data.verticalAccuracy;
 
-    if (env.SPOOFER_DATA) {
-      await env.SPOOFER_DATA.put('loc', JSON.stringify(updated));
-    }
+    await env.SPOOFER_DATA.put('loc', JSON.stringify(updated));
 
     return jsonResponse(updated);
   } catch (err) {
